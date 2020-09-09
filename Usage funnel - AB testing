@@ -1,0 +1,35 @@
+SELECT *
+FROM onboarding_modals
+LIMIT 10;
+
+/* Using GROUP BY, count the number of distinct user_id‘s for each value of modal_text. This will tell us the number of users completing each step of the funnel.*/
+
+SELECT modal_text,
+  COUNT(DISTINCT user_id)
+FROM onboarding_modals
+GROUP BY 1
+ORDER BY 1 ASC;
+
+/* The previous query combined both the control and variant groups.We can use a CASE statement within our COUNT() aggregate so that we only count user_ids whose ab_group is equal to ‘control’:*/
+
+SELECT modal_text,
+  COUNT(CASE
+    WHEN ab_group = 'control'
+  THEN user_id 
+    END) AS 'control_clicks' 
+FROM onboarding_modals
+GROUP BY 1
+ORDER BY 1 ASC;
+
+/*Add an additional column to your previous query that counts the number of clicks from the variant group and alias it as ‘variant_clicks’*/
+
+SELECT modal_text
+  COUNT(DISTINCT CASE /*two cases, so must add DISTINCT */
+    WHEN ab_group = 'control' THEN user_id
+    END) AS 'control_clicks',
+  COUNT(DISTINCT CASE
+    WHEN ab_group = 'variant' THEN user_id
+    END) AS 'variant_clicks'
+FROM onboarding_modals
+GROUP BY 1
+ORDER BY 1;
