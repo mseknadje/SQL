@@ -1,0 +1,21 @@
+/* You can now wield SQL to find where, when, and how users are visiting a website.
+UTM parameters are a way of tracking visits to a website. Developers, marketers, and analysts use them to capture information like the time, attribution source, and attribution medium for each user visit.
+First-touch attribution only considers the first source for each customer. This is a good way of knowing how visitors initially discover a website.
+Last-touch attribution only considers the last source for each customer. This is a good way of knowing how visitors are drawn back to a website, especially for making a final purchase.
+Find first and last touches by grouping page_visits by user_id and finding the MIN and MAX of timestamp.
+To find first- and last-touch attribution, join that table back with the original page_visits table on user_id and timestamp. */
+
+
+
+WITH last_touch AS (
+  SELECT user_id, 
+    MAX(timestamp) AS 'last_touch_at'
+  FROM page_visits
+  GROUP BY user_id)
+SELECT lt.user_id,
+  lt.last_touch_at,
+  pv.utm_source
+FROM last_touch AS 'lt'
+JOIN page_visits AS 'pv'
+  ON lt.user_id = pv.user_id
+  AND lt.last_touch_at = pv.timestamp;
